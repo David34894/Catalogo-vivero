@@ -16,14 +16,6 @@
             background: linear-gradient(145deg, #132a1e, #1B3B2B); 
             border: 1px solid #2d5a43; 
         }
-        @keyframes corazon {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-        .animar-like {
-            animation: corazon 0.3s ease-in-out;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-4 sm:p-6">
@@ -45,12 +37,14 @@
         <!-- Galería de Fotos (Sistema de Pestañas) -->
         <div class="glow-card rounded-2xl p-3 shadow-2xl relative overflow-hidden">
             <div class="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-white/5 shadow-inner bg-[#132a1e]">
+                <!-- Se agregó loading="lazy" para optimizar la carga diferida -->
                 <img id="foto-principal" src="" alt="Foto de la planta" loading="lazy" class="w-full h-full object-cover transition-opacity duration-300" onerror="this.src='https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=600&q=80'">
                 <div class="absolute top-3 right-3 bg-[#132a1e]/90 text-[#F9F8F3] text-[10px] px-2.5 py-1 rounded-full z-10 font-bold backdrop-blur-sm border border-white/20 uppercase tracking-widest shadow">
                     Foto <span id="contador-foto">1</span> de 2
                 </div>
             </div>
 
+            <!-- Botones con área táctil mejorada (py-3 para mayor comodidad en celulares) -->
             <div class="flex gap-2 mt-3">
                 <button onclick="cambiarFoto(0)" id="btn-foto-0" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow">
                     Vista General
@@ -75,18 +69,6 @@
                 <span class="block text-xs text-[#F9F8F3]/70 uppercase tracking-wider">🌿 Atractivo Principal</span>
                 <span id="dato-atractivo" class="font-medium text-[#F9F8F3] mt-1 block">-</span>
             </div>
-        </div>
-
-        <!-- Botón Interactivo de Voto / Me Gusta -->
-        <div class="glow-card rounded-2xl p-4 flex items-center justify-between border border-[#A86542]/30">
-            <div>
-                <h3 class="font-bold text-sm text-[#F9F8F3]">¿Te gusta esta especie?</h3>
-                <p class="text-xs text-[#F9F8F3]/70 mt-0.5">Dejanos tu voto para saber cuáles son las preferidas.</p>
-            </div>
-            <button id="btn-like" onclick="darLike()" class="flex items-center gap-2 bg-[#132a1e] hover:bg-[#2d5a43] border border-[#A86542] text-[#F9F8F3] px-4 py-3 rounded-xl font-bold text-sm transition-all shadow cursor-pointer shrink-0">
-                <span id="icono-corazon" class="text-lg">❤️</span>
-                <span id="contador-votos">0</span>
-            </button>
         </div>
 
         <!-- Dato Loco / Gancho -->
@@ -114,97 +96,301 @@
         <p>Soluciones 3DR • www.soluciones3dr.com Para contactos</p>
     </footer>
 
-    <!-- Firebase SDK & Lógica -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "tu-proyecto.firebaseapp.com",
-            projectId: "tu-proyecto",
-            storageBucket: "tu-proyecto.appspot.com",
-            messagingSenderId: "tu_sender_id",
-            appId: "tu_app_id"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // Base de datos sincronizada con los nombres reales de tus archivos en la carpeta fotos/
+    <!-- Lógica y Base de Datos -->
+    <script>
         const baseDatosPlantas = {
             "araticu": {
                 comun: "Araticú", cientifico: "Annona emarginata",
                 tamano: "Arbusto o árbol pequeño (3-5 m)", luz: "Sol pleno a media sombra", atractivo: "Frutos silvestres de textura rugosa y pulpa aromática muy codiciada por la fauna local.",
                 loco: "También conocido como chirimoya silvestre, sus frutos nativos poseen un sabor tropical único y sumamente dulce.",
-                fotos: ["fotos/Araticú_1.jpg", "fotos/Araticú_2.jpg"]
+                fotos: ["fotos/araticu_1.jpg", "fotos/araticu_2.jpg"]
             },
             "araucaria": {
                 comun: "Araucaria", cientifico: "Araucaria angustifolia",
                 tamano: "Árbol gigante nativo (hasta 25-35 m)", luz: "Sol pleno", atractivo: "Imponente copa en forma de sombrilla y hojas aciculares rígidas.",
                 loco: "Símbolo indiscutido de la selva misionera de altura, produce los codiciados piñones comestibles.",
-                fotos: ["fotos/Araucaria_1.jpg", "fotos/Araucaria_2.jpg"]
+                fotos: ["fotos/araucaria_1.jpg", "fotos/araucaria_2.jpg"]
             },
             "araza_rojo": {
                 comun: "Arazá Rojo", cientifico: "Psidium cattleyanum",
                 tamano: "Arbusto grande de 2 a 4 metros", luz: "Sol pleno", atractivo: "Pequeños frutos globosos de color rojo intenso y brillante con aroma penetrante.",
                 loco: "Es sumamente rico en vitamina C y se destaca por su enorme adaptabilidad a los suelos ácidos de la región.",
-                fotos: ["fotos/Arazá_rojo_1.jpg", "fotos/Arazá_rojo_2.jpg"]
+                fotos: ["fotos/araza_rojo_1.jpg", "fotos/araza_rojo_2.jpg"]
             },
             "cafe": {
                 comun: "Café", cientifico: "Coffea arabica",
                 tamano: "Arbusto mediano de 2 a 4 metros", luz: "Media sombra", atractivo: "Hojas brillantes y frutos rojos llamativos que encierran los granos de café.",
                 loco: "Requiere sombra parcial en su juventud y es una de las bebidas más consumidas y cultivadas del planeta.",
-                fotos: ["fotos/Cafe_1.jpg", "fotos/Cafe_2.jpg"]
+                fotos: ["fotos/cafe_1.jpg", "fotos/cafe_2.jpg"]
             },
             "cedro": {
-                comun: "Cedro Misionero", cientifico: "Cedrela fissilis",
+                comun: "Cedro", cientifico: "Cedrela fissilis",
                 tamano: "Gran árbol forestal (hasta 20-30 m)", luz: "Sol pleno a media sombra", atractivo: "Madera noble de altísimo valor y follaje denso que regala una sombra fresca.",
                 loco: "Es uno de los gigantes madereros más nobles de la selva subtropical, con un aroma inconfundible en su tronco.",
-                fotos: ["fotos/Cedro_Misionero_1.jpg", "fotos/Cedro_Misionero_2.jpg"]
+                fotos: ["fotos/cedro_misionero_1.jpg", "fotos/cedro_misionero_2.jpg"]
             },
             "cerella": {
                 comun: "Cerella (Pitanga del Monte)", cientifico: "Eugenia uniflora",
                 tamano: "Arbusto o árbol pequeño de 2 a 6 metros", luz: "Sol pleno a media sombra", atractivo: "Frutos acanalados de color rojo profundo con un sabor agridulce muy característico.",
                 loco: "Sus hojas despiden un aroma muy particular al ser aplastadas debido a los aceites esenciales que contiene.",
-                fotos: ["fotos/Cerella_1.jpg", "fotos/Cerella_2.jpg"]
+                fotos: ["fotos/cerella_1.jpg", "fotos/cerella_2.jpg"]
             },
             "coco_de_bahia": {
                 comun: "Coco de Bahía", cientifico: "Cocos nucifera",
                 tamano: "Palmera alta de estipe esbelto", luz: "Sol pleno", atractivo: "Grandes hojas plumosas y frutos tropicales colgantes icónicos.",
                 loco: "Aporta un toque tropical indiscutido y sus frutos flotan grandes distancias por el agua.",
-                fotos: ["fotos/Coco_de_Bahía_1.jpg", "fotos/Coco_de_Bahía_2.jpg"]
+                fotos: ["fotos/coco_de_bahia_1.jpg", "fotos/coco_de_bahia_2.jpg"]
             },
             "crotones": {
                 comun: "Crotones", cientifico: "Codiaeum variegatum",
                 tamano: "Arbusto ornamental de 1 a 2 metros", luz: "Luz brillante sin sol directo fuerte", atractivo: "Hojas multicolores con combinaciones intensas de rojos, amarillos y verdes.",
                 loco: "Sus tonalidades varían de intensidad según la cantidad de luz solar directa que reciban sus hojas.",
-                fotos: ["fotos/Crotones 1.jpg", "fotos/Crotones 2.jpg"]
+                fotos: ["fotos/crotones_1.jpg", "fotos/crotones_2.jpg"]
             },
             "dracaena_marginata": {
                 comun: "Dracaena Marginata", cientifico: "Dracaena reflexa var. angustifolia",
                 tamano: "Arbusto arborescente de 2 a 3 metros", luz: "Luz indirecta brillante", atractivo: "Troncos delgados y elegantes con penachos de hojas finas bordeadas de rojo.",
                 loco: "Excelente planta de interior catalogada por la NASA por su alta capacidad de purificar el aire.",
-                fotos: ["fotos/Dracaena marginata 1.jpg", "fotos/Dracaena marginata 2.jpg"]
+                fotos: ["fotos/dracaena_marginata_1.jpg", "fotos/dracaena_marginata_2.jpg"]
+            },
+            "dracaena_ruscaceae": {
+                comun: "Dracaena (Ruscaceae)", cientifico: "Dracaena sp.",
+                tamano: "Arbusto compacto ornamental", luz: "Media sombra o interior luminoso", atractivo: "Follaje verde persistente y estructura muy vistosa para diseño de interiores y patios.",
+                loco: "Perteneciente a la familia Ruscaceae, destaca por su increíble resistencia y bajo mantenimiento.",
+                fotos: ["fotos/dracaena_ruscaceae_1.jpg", "fotos/dracaena_ruscaceae_2.jpg"]
+            },
+            "espina_de_corona": {
+                comun: "Espina de Corona", cientifico: "Gleditsia amorphoides",
+                tamano: "Árbol nativo grande (10-15 m)", luz: "Sol pleno", atractivo: "Impresionantes y grandes espinas ramificadas directamente sobre su tronco.",
+                loco: "Una defensa natural única en los árboles nativos, diseñada para protegerse de la fauna antigua.",
+                fotos: ["fotos/espina_de_corona_1.jpg", "fotos/espina_de_corona_2.jpg"]
+            },
+            "eucalipto_colorado": {
+                comun: "Eucalipto Colorado", cientifico: "Eucalyptus camaldulensis",
+                tamano: "Árbol de gran porte", luz: "Sol pleno", atractivo: "Corteza característica que se descascara en tonos rojizos y blancos.",
+                loco: "Sus hojas desprenden un aceite balsámico muy potente que aromatiza todo el entorno.",
+                fotos: ["fotos/eucalipto_colorado_1.jpg", "fotos/eucalipto_colorado_2.jpg"]
+            },
+            "graviola": {
+                comun: "Graviola", cientifico: "Annona muricata",
+                tamano: "Árbol mediano de 4 a 8 metros", luz: "Sol pleno", atractivo: "Grandes frutos espinosos de pulpa blanca cremosa y jugosa.",
+                loco: "Es altamente valorada tanto por su distintivo sabor agridulce como por las propiedades tradicionales de sus hojas.",
+                fotos: ["fotos/graviola_1.jpg", "fotos/graviola_2.jpg"]
+            },
+            "granada": {
+                comun: "Granada", cientifico: "Punica granatum",
+                tamano: "Arbusto o arbolito de 3 a 5 metros", luz: "Sol pleno", atractivo: "Flores escarlatas vibrantes y frutos repletos de semillas jugosas envueltas en arilo rojo.",
+                loco: "Cada fruto puede contener cientos de semillas recubiertas por una pulpa translúcida y rica en antioxidantes.",
+                fotos: ["fotos/granada_1.jpg", "fotos/granada_2.jpg"]
+            },
+            "guabirola": {
+                comun: "Guabirola", cientifico: "Campomanesia xanthocarpa",
+                tamano: "Árbol nativo de 5 a 10 metros", luz: "Sol pleno", atractivo: "Pequeños frutos amarillos agrupados que desbordan un aroma frutal irresistible al madurar.",
+                loco: "Es un manjar clásico de la selva misionera, muy buscado por aves y caminantes durante su época de fructificación.",
+                fotos: ["fotos/guabirola_1.jpg", "fotos/guabirola_2.jpg"]
+            },
+            "guatambu": {
+                comun: "Guatambú", cientifico: "Balfourodendron riedelianum",
+                tamano: "Árbol nativo majestuoso (15-25 m)", luz: "Sol pleno a media sombra", atractivo: "Follaje denso y madera de tono claro muy apreciada en carpintería fina.",
+                loco: "Es uno de los árboles emblema del estrato alto de la selva misionera subtropical.",
+                fotos: ["fotos/guatambu_1.jpg", "fotos/guatambu_2.jpg"]
+            },
+            "guayaba_blanca": {
+                comun: "Guayaba Blanca", cientifico: "Psidium guajava (var. blanca)",
+                tamano: "Árbol pequeño de 3 a 6 metros", luz: "Sol pleno", atractivo: "Frutos de cáscara verde claro y pulpa interna blanca sumamente perfumada.",
+                loco: "Su fragancia dulce es capaz de aromatizar todo un patio con solo tener un fruto maduro cerca.",
+                fotos: ["fotos/guayaba_blanca_1.jpg", "fotos/guayaba_blanca_2.jpg"]
+            },
+            "guayaba_roja": {
+                comun: "Guayaba Roja", cientifico: "Psidium guajava (var. roja)",
+                tamano: "Árbol pequeño de 3 a 6 metros", luz: "Sol pleno", atractivo: "Frutos aromáticos con una pulpa interior rosada o roja intensa muy atractiva.",
+                loco: "Contiene una cantidad extraordinaria de licopeno y compuestos antioxidantes naturales.",
+                fotos: ["fotos/guayaba_roja_1.jpg", "fotos/guayaba_roja_2.jpg"]
+            },
+            "guayaba_tailadeza": {
+                comun: "Guayaba Tailadeza", cientifico: "Psidium guajava selección regional",
+                tamano: "Porte mediano de 3 a 6 metros", luz: "Sol pleno", atractivo: "Selección especial de frutos generosos con excelente relación pulpa y sabor.",
+                loco: "Ideal para la producción artesanal de dulces y mermeladas tradicionales de alta calidad.",
+                fotos: ["fotos/guayaba_tailadeza_1.jpg", "fotos/guayaba_tailadeza_2.jpg"]
+            },
+            "guayuvira": {
+                comun: "Guayuvira", cientifico: "Patagonula americana",
+                tamano: "Árbol nativo de 8 a 15 metros", luz: "Sol pleno", atractivo: "Floración blanca abundante y madera extremadamente flexible y resistente.",
+                loco: "Muy utilizada tradicionalmente en la región para la elaboración de artesanías y cabos de herramientas.",
+                fotos: ["fotos/guayuvira_1.jpg", "fotos/guayuvira_2.jpg"]
+            },
+            "heliconia_angusta": {
+                comun: "Heliconia Angusta", cientifico: "Heliconia angusta",
+                tamano: "Planta herbácea de 1 a 2 metros", luz: "Media sombra", atractivo: "Inflorescencias erectas con coloraciones vivas muy atractivas para polinizadores.",
+                loco: "Aporta un aspecto tropical elegante ideal para jardines húmedos y sombreados.",
+                fotos: ["fotos/heliconia_angusta_1.jpg", "fotos/heliconia_angusta_2.jpg"]
+            },
+            "heliconia_psittacorum": {
+                comun: "Heliconia Psittacorum", cientifico: "Heliconia psittacorum",
+                tamano: "Planta perenne de 1 a 1.5 metros", luz: "Sol pleno a media sombra", atractivo: "Flores en tonos amarillos, naranjas y rojos con forma de pico de ave.",
+                loco: "Sus flores son sumamente duraderas como flor cortada en arreglos ornamentales.",
+                fotos: ["fotos/heliconia_psittacorum_1.jpg", "fotos/heliconia_psittacorum_2.jpg"]
+            },
+            "heliconia_rostrata": {
+                comun: "Heliconia Rostrata", cientifico: "Heliconia rostrata",
+                tamano: "Planta herbácea colgante de 1.5 a 3 metros", luz: "Media sombra", atractivo: "Espectaculares inflorescencias colgantes multicolores en forma de pinjaman.",
+                loco: "Una de las heliconias más vistosas del mundo debido a sus coloridas brácteas invertidas.",
+                fotos: ["fotos/heliconia_rostrata_1.jpg", "fotos/heliconia_rostrata_2.jpg"]
+            },
+            "incienso": {
+                comun: "Incienso", cientifico: "Myrocarpus frondosus",
+                tamano: "Árbol nativo grande (10-20 m)", luz: "Sol pleno", atractivo: "Follaje aromático y resinas naturales con propiedades medicinales e industriales.",
+                loco: "Al cortar o frotar su madera o corteza libera un aroma balsámico muy característico a incienso.",
+                fotos: ["fotos/incienso_1.jpg", "fotos/incienso_2.jpg"]
+            },
+            "kaizuka": {
+                comun: "Kaizuka", cientifico: "Juniperus chinensis 'Kaizuka'",
+                tamano: "Hasta 4-6 metros", luz: "Sol pleno", atractivo: "Follaje verde intenso en forma de espirales esculturales.",
+                loco: "Sus ramas adoptan un movimiento natural retorcido muy cotizado en paisajismo asiático.",
+                fotos: ["fotos/kaizuka_1.jpg", "fotos/kaizuka_2.jpg"]
+            },
+            "mamon_papaya": {
+                comun: "Mamón / Papaya", cientifico: "Carica papaya",
+                tamano: "Planta arborescente de 3 a 6 metros", luz: "Sol pleno", atractivo: "Grandes frutos dulces y jugosos dispuestos directamente alrededor del tronco superior.",
+                loco: "Contiene papaína, una enzima natural muy utilizada para suavizar carnes y en cosmética.",
+                fotos: ["fotos/mamon_papaya_1.jpg", "fotos/mamon_papaya_2.jpg"]
+            },
+            "mango_rosa": {
+                comun: "Mango Rosa", cientifico: "Mangifera indica 'Rosa'",
+                tamano: "Árbol frutal grande y frondoso", luz: "Sol pleno", atractivo: "Frutos dulces aromáticos con tonalidades rosadas y anaranjadas.",
+                loco: "Pertenece a la misma familia botánica que el anacardo (cajú) y el pistacho.",
+                fotos: ["fotos/mango_rosa_1.jpg", "fotos/mango_rosa_2.jpg"]
+            },
+            "monstera_deliciosa": {
+                comun: "Monstera Deliciosa", cientifico: "Monstera deliciosa",
+                tamano: "Trepadora de gran desarrollo", luz: "Luz indirecta brillante", atractivo: "Grandes hojas perforadas muy ornamentales con aspecto selvático único.",
+                loco: "Sus singulares 'ventanas' en las hojas permiten que la luz pase hacia las hojas inferiores en la selva.",
+                fotos: ["fotos/monstera_deliciosa_1.jpg", "fotos/monstera_deliciosa_2.jpg"]
+            },
+            "musa_zebrina": {
+                comun: "Musa Zebrina (Banano Rojo)", cientifico: "Musa acuminata var. zebrina",
+                tamano: "Planta herbácea de 2 a 3 metros", luz: "Sol pleno a media sombra", atractivo: "Hojas decorativas con llamativas manchas rojas y púrpuras en el envés.",
+                loco: "Aporta un look totalmente exótico y tropical a cualquier jardín o espacio verde.",
+                fotos: ["fotos/musa_zebrina_1.jpg", "fotos/musa_zebrina_2.jpg"]
+            },
+            "nispero": {
+                comun: "Níspero", cientifico: "Eriobotrya japonica",
+                tamano: "Árbol frutal mediano (4-6 m)", luz: "Sol pleno", atractivo: "Grandes hojas acartonadas y frutos amarillos dulces a finales de invierno.",
+                loco: "Es uno de los primeros frutales en florecer en pleno invierno, anticipándose a toda la temporada cálida.",
+                fotos: ["fotos/nispero_1.jpg", "fotos/nispero_2.jpg"]
+            },
+            "pacuri": {
+                comun: "Pacurí", cientifico: "Garcinia brasiliensis",
+                tamano: "Árbol nativo frondoso de 6 a 12 metros", luz: "Media sombra a sol pleno", atractivo: "Frutos globosos de color amarillo brillante con pulpa ácida y refrescante.",
+                loco: "Emparentado con el mangostán, su látex y propiedades son muy apreciados dentro de la biodiversidad regional.",
+                fotos: ["fotos/pacuri_1.jpg", "fotos/pacuri_2.jpg"]
+            },
+            "palmera_areca": {
+                comun: "Palmera Areca", cientifico: "Dypsis lutescens",
+                tamano: "Palmera multitallo de 2 a 6 metros", luz: "Luz brillante sin sol directo fuerte", atractivo: "Tallos amarillentos y frondas arqueadas muy elegantes.",
+                loco: "Excelente para armar pantallas naturales y purificar ambientes interiores.",
+                fotos: ["fotos/palmera_areca_1.jpg", "fotos/palmera_areca_2.jpg"]
+            },
+            "palmera_licuala": {
+                comun: "Palmera Licuala", cientifico: "Licuala grandis",
+                tamano: "Palmera pequeña de 1 a 2 metros", luz: "Media sombra", atractivo: "Hojas enteras circulares gigantescas con pliegues en forma de abanico.",
+                loco: "Su diseño de hoja en abanico la convierte en una de las palmeras ornamentales más cotizadas.",
+                fotos: ["fotos/palmera_licuala_1.jpg", "fotos/palmera_licuala_2.jpg"]
+            },
+            "palmera_palmito": {
+                comun: "Palmera Palmito (Euterpe edulis)", cientifico: "Euterpe edulis",
+                tamano: "Palmera nativa esbelta (10-15 m)", luz: "Media sombra en juventud", atractivo: "Estipe delgado y elegante con gran valor ecológico en la selva.",
+                loco: "De su cogollo se extrae el tradicional palmito; hoy protegida por su rol vital para aves como el tucán.",
+                fotos: ["fotos/palmera_palmito_1.jpg", "fotos/palmera_palmito_2.jpg"]
+            },
+            "palmera_seafortia": {
+                comun: "Palmera Seafortia", cientifico: "Archontophoenix cunninghamiana",
+                tamano: "Palmera elegante de 12 a 20 metros", luz: "Sol pleno a media sombra", atractivo: "Tronco liso anillado y hojas plumosas colgantes muy vistosas.",
+                loco: "Originaria de Australia, se adaptó de maravilla a los jardines subtropicales de la región.",
+                fotos: ["fotos/palmera_seafortia_1.jpg", "fotos/palmera_seafortia_2.jpg"]
+            },
+            "palmera_triangularis": {
+                comun: "Palmera Triangularis", cientifico: "Dypsis decaryi",
+                tamano: "Palmera mediana de 4 a 6 metros", luz: "Sol pleno", atractivo: "Bases de las hojas dispuestas en tres ángulos claros formando un triángulo perfecto.",
+                loco: "Una arquitectura vegetal geométrica única que llama la atención de inmediato en cualquier diseño.",
+                fotos: ["fotos/palmera_triangularis_1.jpg", "fotos/palmera_triangularis_2.jpg"]
+            },
+            "palta_hass": {
+                comun: "Palta Hass", cientifico: "Persea americana 'Hass'",
+                tamano: "Árbol de porte mediano/grande", luz: "Sol pleno", atractivo: "Frutos de piel rugosa que oscurecen al madurar con pulpa sumamente cremosa.",
+                loco: "Una sola planta de palta produce flores con ambos sexos, pero abren en horarios distintos para evitar la auto-polinización.",
+                fotos: ["fotos/palta_hass_1.jpg", "fotos/palta_hass_2.jpg"]
+            },
+            "philodendron_selloumn": {
+                comun: "Philodendron Selloum", cientifico: "Philodendron bipinnatifidum",
+                tamano: "Planta robusta de gran porte", luz: "Media sombra", atractivo: "Grandes hojas profundamente lobuladas con un aspecto sumamente selvático.",
+                loco: "Desarrolla raíces aéreas gruesas para sostener su gran estructura sobre el suelo o los árboles.",
+                fotos: ["fotos/philodendro_sellowianum_1.jpg", "fotos/philodendro_sellowianum_2.jpg"]
+            },
+            "pindo": {
+                comun: "Palmera Pindó", cientifico: "Syagrus romanzoffiana",
+                tamano: "Palmera nativa robusta (hasta 15 m)", luz: "Sol pleno", atractivo: "Frondas plumosas colgantes muy gráciles y racimos de frutos amarillos.",
+                loco: "Es la palmera nativa por excelencia del paisaje mesopotámico, muy resistente y elegante.",
+                fotos: ["fotos/pindo_1.jpg", "fotos/pindo_2.jpg"]
+            },
+            "pitanga": {
+                comun: "Pitanga", cientifico: "Eugenia uniflora",
+                tamano: "Arbusto grande o arbolito de 2 a 4 metros", luz: "Sol pleno a media sombra", atractivo: "Frutos estriados de color rojo a casi negro, de sabor exquisito y refrescante.",
+                loco: "Su nombre proviene del guaraní y hace referencia al color rojo encendido de sus frutos maduros.",
+                fotos: ["fotos/pitanga_1.jpg", "fotos/pitanga_2.jpg"]
+            },
+            "sansevieria_verde": {
+                comun: "Sansevieria Verde", cientifico: "Sansevieria trifasciata",
+                tamano: "Planta suculenta de 30 a 90 cm", luz: "Desde sombra hasta sol pleno", atractivo: "Hojas rígidas verticales con bandas verde oscuro muy resistentes.",
+                loco: "Conocida popularmente como 'Lengua de suegra', sobrevive prácticamente a cualquier descuido de riego.",
+                fotos: ["fotos/sansevieria_verde_1.jpg", "fotos/sansevieria_verde_2.jpg"]
+            },
+            "stevia": {
+                comun: "Stevia", cientifico: "Stevia rebaudiana",
+                tamano: "Arbusto pequeño de 50 a 80 cm", luz: "Sol pleno", atractivo: "Hojas con un dulzor natural extraordinario libre de calorías.",
+                loco: "Originaria de la región, sus hojas pueden endulzar infusiones hasta 300 veces más que el azúcar común.",
+                fotos: ["fotos/stevia_1.jpg", "fotos/stevia_2.jpg"]
+            },
+            "te": {
+                comun: "Planta de Té", cientifico: "Camellia sinensis",
+                tamano: "Arbusto perenne podado (1-2 m)", luz: "Sol pleno a media sombra", atractivo: "Hojas tiernas brillantes y delicadas flores blancas aromáticas.",
+                loco: "Es la planta madre de la cual se obtienen los tés negro, verde y blanco según su proceso.",
+                fotos: ["fotos/te_1.jpg", "fotos/te_2.jpg"]
             },
             "yabuticaba": {
                 comun: "Jabuticaba", cientifico: "Plinia cauliflora",
                 tamano: "Hasta 6-9 metros", luz: "Sol pleno", atractivo: "Frutos negros y dulces que brotan directamente pegados al tronco.",
                 loco: "Es un fenómeno botánico único: el árbol parece 'tapizado' de frutos directamente sobre su corteza.",
                 fotos: ["fotos/yabuticaba_1.jpg", "fotos/yabuticaba_2.jpg"]
+            },
+            "yerba_mate": {
+                comun: "Yerba Mate", cientifico: "Ilex paraguariensis",
+                tamano: "Árbol nativo de 8 a 15 metros", luz: "Media sombra a sol pleno", atractivo: "Follaje verde oscuro persistente, símbolo cultural y económico de la región.",
+                loco: "Requiere un proceso especial de secado y estacionamiento para transformarse en la tradicional infusión mate.",
+                fotos: ["fotos/yerba_mate_1.jpg", "fotos/yerba_mate_2.jpg"]
+            },
+            "zamioculcas": {
+                comun: "Zamioculcas", cientifico: "Zamioculcas zamiifolia",
+                tamano: "Planta perenne de 40 a 60 cm", luz: "Luz baja a indirecta", atractivo: "Tallos gruesos y carnosos con hojas brillantes que parecen de cera.",
+                loco: "Almacena agua en sus raíces subterráneas (rizomas), lo que la hace sumamente resistente a la sequía.",
+                fotos: ["fotos/zamioculcas_1.jpg", "fotos/zamioculcas_2.jpg"]
             }
         };
 
+        // Función segura para normalizar texto (quita tildes, pasa a minúsculas y limpia espacios)
         function normalizarTexto(texto) {
             return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
         }
 
+        // Lectura del parámetro de URL 'p' con blindaje total ante mayúsculas y acentos
         const urlParams = new URLSearchParams(window.location.search);
         const rawPlantaKey = urlParams.get('p') || 'yabuticaba'; 
         const plantaKey = normalizarTexto(rawPlantaKey);
+
+        // Selección de datos (si no existe o está vacío, usa 'yabuticaba' por defecto)
         const datos = baseDatosPlantas[plantaKey] || baseDatosPlantas['yabuticaba'];
 
-        // Inyección de textos
+        // Inyección de textos en la interfaz
         document.getElementById('nombre-comun').innerText = datos.comun;
         document.getElementById('nombre-cientifico').innerText = datos.cientifico;
         document.getElementById('dato-tamano').innerText = datos.tamano;
@@ -212,59 +398,10 @@
         document.getElementById('dato-atractivo').innerText = datos.atractivo;
         document.getElementById('dato-loco').innerText = datos.loco;
 
-        // Lógica de Votos en Firebase
-        const docRef = doc(db, "votos_plantas", plantaKey);
-        const contadorVotosEl = document.getElementById('contador-votos');
-        const btnLikeEl = document.getElementById('btn-like');
-        const iconoCorazonEl = document.getElementById('icono-corazon');
-
-        if (localStorage.getItem(`voto_${plantaKey}`)) {
-            btnLikeEl.classList.add('bg-[#2d5a43]');
-            iconoCorazonEl.innerText = "💖";
-        }
-
-        async function cargarVotos() {
-            try {
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    contadorVotosEl.innerText = docSnap.data().votos || 0;
-                } else {
-                    await setDoc(docRef, { votos: 0 });
-                    contadorVotosEl.innerText = 0;
-                }
-            } catch (error) {
-                contadorVotosEl.innerText = "-";
-            }
-        }
-        cargarVotos();
-
-        window.darLike = async function() {
-            if (localStorage.getItem(`voto_${plantaKey}`)) {
-                alert("¡Ya votaste por esta especie! Gracias.");
-                return;
-            }
-            iconoCorazonEl.classList.add('animar-like');
-            setTimeout(() => iconoCorazonEl.classList.remove('animar-like'), 300);
-
-            try {
-                const docSnap = await getDoc(docRef);
-                if (!docSnap.exists()) {
-                    await setDoc(docRef, { votos: 1 });
-                } else {
-                    await updateDoc(docRef, { votos: increment(1) });
-                }
-                const actual = parseInt(contadorVotosEl.innerText) || 0;
-                contadorVotosEl.innerText = actual + 1;
-                localStorage.setItem(`voto_${plantaKey}`, 'true');
-                btnLikeEl.classList.add('bg-[#2d5a43]');
-                iconoCorazonEl.innerText = "💖";
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
+        // Sistema de pestañas de fotos
         let fotoActualIndex = 0;
-        window.cambiarFoto = function(index) {
+
+        function cambiarFoto(index) {
             fotoActualIndex = index;
             const imgElement = document.getElementById('foto-principal');
             const contadorElement = document.getElementById('contador-foto');
@@ -283,6 +420,10 @@
             }
         }
 
+        cambiarFoto(0);
+    </script>
+</body>
+</html>
         cambiarFoto(0);
     </script>
 </body>
