@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botánica Interactiva - Experiencia Misionera</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #1B3B2B; 
+            color: #F9F8F3; 
+            font-family: 'Montserrat', sans-serif; 
+        }
+        .glow-card { 
+            background: linear-gradient(145deg, #132a1e, #1B3B2B); 
+            border: 1px solid #2d5a43; 
+        }
+        @keyframes corazon {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+        .animar-like {
+            animation: corazon 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6">
+
+    <!-- Header / Identidad del Vivero -->
+    <header class="text-center mb-5">
+        <div class="flex items-center justify-center gap-3 mb-2">
+            <img src="fotos/logo.png" alt="Logo Vivero" class="w-10 h-10 object-contain rounded-full bg-[#132a1e] p-1 border border-[#A86542]" onerror="this.style.display='none'">
+            <span class="text-base font-bold tracking-wider text-[#A86542] uppercase">Margarita-Samuhu</span>
+        </div>
+        <span class="text-[11px] uppercase tracking-widest text-[#F9F8F3] font-semibold bg-[#A86542] px-3 py-1 rounded-full shadow-sm">Botánica Interactiva Misionera</span>
+        <h1 id="nombre-comun" class="text-2xl sm:text-3xl font-bold mt-2 text-[#F9F8F3]">Cargando planta...</h1>
+        <p id="nombre-cientifico" class="italic text-sm text-[#F9F8F3]/80">científico</p>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-md mx-auto w-full space-y-4">
+        
+        <!-- Galería de Fotos (Sistema de Pestañas) -->
+        <div class="glow-card rounded-2xl p-3 shadow-2xl relative overflow-hidden">
+            <div class="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-white/5 shadow-inner bg-[#132a1e]">
+                <img id="foto-principal" src="" alt="Foto de la planta" loading="lazy" class="w-full h-full object-cover transition-opacity duration-300" onerror="this.src='https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=600&q=80'">
+                <div class="absolute top-3 right-3 bg-[#132a1e]/90 text-[#F9F8F3] text-[10px] px-2.5 py-1 rounded-full z-10 font-bold backdrop-blur-sm border border-white/20 uppercase tracking-widest shadow">
+                    Foto <span id="contador-foto">1</span> de 2
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-3">
+                <button onclick="cambiarFoto(0)" id="btn-foto-0" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow">
+                    Vista General
+                </button>
+                <button onclick="cambiarFoto(1)" id="btn-foto-1" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#132a1e] text-[#F9F8F3]/70 border-[#2d5a43] hover:text-[#F9F8F3]">
+                    Detalle / Fruto
+                </button>
+            </div>
+        </div>
+
+        <!-- Ficha de Poder -->
+        <div class="glow-card rounded-2xl p-4 grid grid-cols-2 gap-3 text-sm">
+            <div class="bg-[#132a1e]/80 p-3 rounded-xl border border-white/5">
+                <span class="block text-xs text-[#F9F8F3]/70 uppercase tracking-wider">📏 Porte / Tamaño</span>
+                <span id="dato-tamano" class="font-medium text-[#F9F8F3] mt-1 block">-</span>
+            </div>
+            <div class="bg-[#132a1e]/80 p-3 rounded-xl border border-white/5">
+                <span class="block text-xs text-[#F9F8F3]/70 uppercase tracking-wider">☀️ Exposición</span>
+                <span id="dato-luz" class="font-medium text-[#F9F8F3] mt-1 block">-</span>
+            </div>
+            <div class="col-span-2 bg-[#132a1e]/80 p-3 rounded-xl border border-white/5">
+                <span class="block text-xs text-[#F9F8F3]/70 uppercase tracking-wider">🌿 Atractivo Principal</span>
+                <span id="dato-atractivo" class="font-medium text-[#F9F8F3] mt-1 block">-</span>
+            </div>
+        </div>
+
+        <!-- Botón Interactivo de Voto / Me Gusta -->
+        <div class="glow-card rounded-2xl p-4 flex items-center justify-between border border-[#A86542]/30">
+            <div>
+                <h3 class="font-bold text-sm text-[#F9F8F3]">¿Te gusta esta especie?</h3>
+                <p class="text-xs text-[#F9F8F3]/70 mt-0.5">Dejanos tu voto para saber cuáles son las preferidas.</p>
+            </div>
+            <button id="btn-like" onclick="darLike()" class="flex items-center gap-2 bg-[#132a1e] hover:bg-[#2d5a43] border border-[#A86542] text-[#F9F8F3] px-4 py-3 rounded-xl font-bold text-sm transition-all shadow cursor-pointer shrink-0">
+                <span id="icono-corazon" class="text-lg">❤️</span>
+                <span id="contador-votos">0</span>
+            </button>
+        </div>
+
+        <!-- Dato Loco / Gancho -->
+        <div class="bg-[#132a1e] border border-[#A86542]/40 rounded-2xl p-4 relative shadow-md">
+            <div class="absolute -top-3 left-4 bg-[#A86542] text-[#F9F8F3] text-[10px] uppercase font-bold px-2.5 py-0.5 rounded shadow">Dato Curioso</div>
+            <p id="dato-loco" class="text-sm text-[#F9F8F3]/90 leading-relaxed mt-1">Cargando curiosidad...</p>
+        </div>
+
+        <!-- Sección QR de Contacto -->
+        <div class="glow-card rounded-2xl p-4 flex items-center gap-4 border border-[#A86542]/30">
+            <div class="bg-white p-2 rounded-xl shrink-0">
+                <img src="fotos/qr-contacto.png" alt="QR Contacto" class="w-16 h-16 object-contain" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/5493751317709'">
+            </div>
+            <div>
+                <h3 class="font-bold text-sm text-[#F9F8F3]">¡Llevate esta especie a casa!</h3>
+                <p class="text-xs text-[#F9F8F3]/70 mt-0.5">Escaneá para consultas, reservas o asesoramiento directo con el vivero.</p>
+                <span class="inline-block mt-2 text-[11px] text-[#A86542] font-semibold bg-[#132a1e] px-2 py-0.5 rounded border border-[#A86542]/40">📲 3751317709</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center mt-6 text-xs text-[#F9F8F3]/60">
+        <p>Soluciones 3DR • www.soluciones3dr.com Para contactos</p>
+    </footer>
+
+    <!-- Firebase SDK & Lógica -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "tu_sender_id",
+            appId: "tu_app_id"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Base de datos sincronizada con los nombres reales de tus archivos en la carpeta fotos/
+        const baseDatosPlantas = {
+            "araticu": {
+                comun: "Araticú", cientifico: "Annona emarginata",
+                tamano: "Arbusto o árbol pequeño (3-5 m)", luz: "Sol pleno a media sombra", atractivo: "Frutos silvestres de textura rugosa y pulpa aromática muy codiciada por la fauna local.",
+                loco: "También conocido como chirimoya silvestre, sus frutos nativos poseen un sabor tropical único y sumamente dulce.",
+                fotos: ["fotos/Araticú_1.jpg", "fotos/Araticú_2.jpg"]
+            },
+            "araucaria": {
+                comun: "Araucaria", cientifico: "Araucaria angustifolia",
+                tamano: "Árbol gigante nativo (hasta 25-35 m)", luz: "Sol pleno", atractivo: "Imponente copa en forma de sombrilla y hojas aciculares rígidas.",
+                loco: "Símbolo indiscutido de la selva misionera de altura, produce los codiciados piñones comestibles.",
+                fotos: ["fotos/Araucaria_1.jpg", "fotos/Araucaria_2.jpg"]
+            },
+            "araza_rojo": {
+                comun: "Arazá Rojo", cientifico: "Psidium cattleyanum",
+                tamano: "Arbusto grande de 2 a 4 metros", luz: "Sol pleno", atractivo: "Pequeños frutos globosos de color rojo intenso y brillante con aroma penetrante.",
+                loco: "Es sumamente rico en vitamina C y se destaca por su enorme adaptabilidad a los suelos ácidos de la región.",
+                fotos: ["fotos/Arazá_rojo_1.jpg", "fotos/Arazá_rojo_2.jpg"]
+            },
+            "cafe": {
+                comun: "Café", cientifico: "Coffea arabica",
+                tamano: "Arbusto mediano de 2 a 4 metros", luz: "Media sombra", atractivo: "Hojas brillantes y frutos rojos llamativos que encierran los granos de café.",
+                loco: "Requiere sombra parcial en su juventud y es una de las bebidas más consumidas y cultivadas del planeta.",
+                fotos: ["fotos/Cafe_1.jpg", "fotos/Cafe_2.jpg"]
+            },
+            "cedro": {
+                comun: "Cedro Misionero", cientifico: "Cedrela fissilis",
+                tamano: "Gran árbol forestal (hasta 20-30 m)", luz: "Sol pleno a media sombra", atractivo: "Madera noble de altísimo valor y follaje denso que regala una sombra fresca.",
+                loco: "Es uno de los gigantes madereros más nobles de la selva subtropical, con un aroma inconfundible en su tronco.",
+                fotos: ["fotos/Cedro_Misionero_1.jpg", "fotos/Cedro_Misionero_2.jpg"]
+            },
+            "cerella": {
+                comun: "Cerella (Pitanga del Monte)", cientifico: "Eugenia uniflora",
+                tamano: "Arbusto o árbol pequeño de 2 a 6 metros", luz: "Sol pleno a media sombra", atractivo: "Frutos acanalados de color rojo profundo con un sabor agridulce muy característico.",
+                loco: "Sus hojas despiden un aroma muy particular al ser aplastadas debido a los aceites esenciales que contiene.",
+                fotos: ["fotos/Cerella_1.jpg", "fotos/Cerella_2.jpg"]
+            },
+            "coco_de_bahia": {
+                comun: "Coco de Bahía", cientifico: "Cocos nucifera",
+                tamano: "Palmera alta de estipe esbelto", luz: "Sol pleno", atractivo: "Grandes hojas plumosas y frutos tropicales colgantes icónicos.",
+                loco: "Aporta un toque tropical indiscutido y sus frutos flotan grandes distancias por el agua.",
+                fotos: ["fotos/Coco_de_Bahía_1.jpg", "fotos/Coco_de_Bahía_2.jpg"]
+            },
+            "crotones": {
+                comun: "Crotones", cientifico: "Codiaeum variegatum",
+                tamano: "Arbusto ornamental de 1 a 2 metros", luz: "Luz brillante sin sol directo fuerte", atractivo: "Hojas multicolores con combinaciones intensas de rojos, amarillos y verdes.",
+                loco: "Sus tonalidades varían de intensidad según la cantidad de luz solar directa que reciban sus hojas.",
+                fotos: ["fotos/Crotones 1.jpg", "fotos/Crotones 2.jpg"]
+            },
+            "dracaena_marginata": {
+                comun: "Dracaena Marginata", cientifico: "Dracaena reflexa var. angustifolia",
+                tamano: "Arbusto arborescente de 2 a 3 metros", luz: "Luz indirecta brillante", atractivo: "Troncos delgados y elegantes con penachos de hojas finas bordeadas de rojo.",
+                loco: "Excelente planta de interior catalogada por la NASA por su alta capacidad de purificar el aire.",
+                fotos: ["fotos/Dracaena marginata 1.jpg", "fotos/Dracaena marginata 2.jpg"]
+            },
+            "yabuticaba": {
+                comun: "Jabuticaba", cientifico: "Plinia cauliflora",
+                tamano: "Hasta 6-9 metros", luz: "Sol pleno", atractivo: "Frutos negros y dulces que brotan directamente pegados al tronco.",
+                loco: "Es un fenómeno botánico único: el árbol parece 'tapizado' de frutos directamente sobre su corteza.",
+                fotos: ["fotos/yabuticaba_1.jpg", "fotos/yabuticaba_2.jpg"]
+            }
+        };
+
+        function normalizarTexto(texto) {
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawPlantaKey = urlParams.get('p') || 'yabuticaba'; 
+        const plantaKey = normalizarTexto(rawPlantaKey);
+        const datos = baseDatosPlantas[plantaKey] || baseDatosPlantas['yabuticaba'];
+
+        // Inyección de textos
+        document.getElementById('nombre-comun').innerText = datos.comun;
+        document.getElementById('nombre-cientifico').innerText = datos.cientifico;
+        document.getElementById('dato-tamano').innerText = datos.tamano;
+        document.getElementById('dato-luz').innerText = datos.luz;
+        document.getElementById('dato-atractivo').innerText = datos.atractivo;
+        document.getElementById('dato-loco').innerText = datos.loco;
+
+        // Lógica de Votos en Firebase
+        const docRef = doc(db, "votos_plantas", plantaKey);
+        const contadorVotosEl = document.getElementById('contador-votos');
+        const btnLikeEl = document.getElementById('btn-like');
+        const iconoCorazonEl = document.getElementById('icono-corazon');
+
+        if (localStorage.getItem(`voto_${plantaKey}`)) {
+            btnLikeEl.classList.add('bg-[#2d5a43]');
+            iconoCorazonEl.innerText = "💖";
+        }
+
+        async function cargarVotos() {
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    contadorVotosEl.innerText = docSnap.data().votos || 0;
+                } else {
+                    await setDoc(docRef, { votos: 0 });
+                    contadorVotosEl.innerText = 0;
+                }
+            } catch (error) {
+                contadorVotosEl.innerText = "-";
+            }
+        }
+        cargarVotos();
+
+        window.darLike = async function() {
+            if (localStorage.getItem(`voto_${plantaKey}`)) {
+                alert("¡Ya votaste por esta especie! Gracias.");
+                return;
+            }
+            iconoCorazonEl.classList.add('animar-like');
+            setTimeout(() => iconoCorazonEl.classList.remove('animar-like'), 300);
+
+            try {
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    await setDoc(docRef, { votos: 1 });
+                } else {
+                    await updateDoc(docRef, { votos: increment(1) });
+                }
+                const actual = parseInt(contadorVotosEl.innerText) || 0;
+                contadorVotosEl.innerText = actual + 1;
+                localStorage.setItem(`voto_${plantaKey}`, 'true');
+                btnLikeEl.classList.add('bg-[#2d5a43]');
+                iconoCorazonEl.innerText = "💖";
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        let fotoActualIndex = 0;
+        window.cambiarFoto = function(index) {
+            fotoActualIndex = index;
+            const imgElement = document.getElementById('foto-principal');
+            const contadorElement = document.getElementById('contador-foto');
+            const btn0 = document.getElementById('btn-foto-0');
+            const btn1 = document.getElementById('btn-foto-1');
+
+            imgElement.src = datos.fotos[fotoActualIndex];
+            contadorElement.innerText = fotoActualIndex + 1;
+
+            if (index === 0) {
+                btn0.className = "flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow";
+                btn1.className = "flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#132a1e] text-[#F9F8F3]/70 border-[#2d5a43] hover:text-[#F9F8F3]";
+            } else {
+                btn1.className = "flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow";
+                btn0.className = "flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#132a1e] text-[#F9F8F3]/70 border-[#2d5a43] hover:text-[#F9F8F3]";
+            }
+        }
+
+        cambiarFoto(0);
+    </script>
+</body>
+</html>
