@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Botánica Interactiva - Experiencia Misionera</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Importamos html2pdf para asegurar la descarga directa en celulares y PCs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -16,29 +18,24 @@
             background: linear-gradient(145deg, #132a1e, #1B3B2B); 
             border: 1px solid #2d5a43; 
         }
-        @media print {
-            body { background-color: #ffffff !important; color: #000000 !important; }
-            .glow-card { background: #ffffff !important; border: 1px solid #ccc !important; box-shadow: none !important; }
-            button, footer { display: none !important; }
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-4 sm:p-6">
 
-    <!-- Header / Identidad del Vivero -->
-    <header class="text-center mb-5">
-        <div class="flex items-center justify-center gap-3 mb-2">
-            <img src="fotos/logo.png" alt="Logo Vivero" class="w-10 h-10 object-contain rounded-full bg-[#132a1e] p-1 border border-[#A86542]" onerror="this.style.display='none'">
-            <span class="text-base font-bold tracking-wider text-[#A86542] uppercase">Margarita-Samuhu</span>
-        </div>
-        <span class="text-[11px] uppercase tracking-widest text-[#F9F8F3] font-semibold bg-[#A86542] px-3 py-1 rounded-full shadow-sm">Botánica Interactiva Misionera</span>
-        <h1 id="nombre-comun" class="text-2xl sm:text-3xl font-bold mt-2 text-[#F9F8F3]">Cargando planta...</h1>
-        <p id="nombre-cientifico" class="italic text-sm text-[#F9F8F3]/80">científico</p>
-    </header>
+    <!-- Contenedor principal que se va a exportar a PDF -->
+    <div id="ficha-container" class="w-full max-w-md mx-auto space-y-4">
 
-    <!-- Contenido Principal -->
-    <main class="max-w-md mx-auto w-full space-y-4">
-        
+        <!-- Header / Identidad del Vivero -->
+        <header class="text-center mb-5">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <img src="fotos/logo.png" alt="Logo Vivero" class="w-10 h-10 object-contain rounded-full bg-[#132a1e] p-1 border border-[#A86542]" onerror="this.style.display='none'">
+                <span class="text-base font-bold tracking-wider text-[#A86542] uppercase">Margarita-Samuhu</span>
+            </div>
+            <span class="text-[11px] uppercase tracking-widest text-[#F9F8F3] font-semibold bg-[#A86542] px-3 py-1 rounded-full shadow-sm">Botánica Interactiva Misionera</span>
+            <h1 id="nombre-comun" class="text-2xl sm:text-3xl font-bold mt-2 text-[#F9F8F3]">Cargando planta...</h1>
+            <p id="nombre-cientifico" class="italic text-sm text-[#F9F8F3]/80">científico</p>
+        </header>
+
         <!-- Galería de Fotos (Sistema de Pestañas) -->
         <div class="glow-card rounded-2xl p-3 shadow-2xl relative overflow-hidden">
             <div class="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-white/5 shadow-inner bg-[#132a1e]">
@@ -48,8 +45,8 @@
                 </div>
             </div>
 
-            <!-- Botones con área táctil mejorada -->
-            <div class="flex gap-2 mt-3">
+            <!-- Botones con área táctil mejorada (Se ocultan al generar el PDF mediante la clase no-print) -->
+            <div class="flex gap-2 mt-3 no-print">
                 <button onclick="cambiarFoto(0)" id="btn-foto-0" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow">
                     Foto 1
                 </button>
@@ -93,14 +90,14 @@
             </div>
         </div>
 
-        <!-- Botón de Descarga / Guardar PDF Nativo -->
-        <div>
-            <button onclick="descargarPDF()" class="w-full py-3 px-4 bg-[#A86542] hover:bg-[#8f5435] text-[#F9F8F3] text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border border-[#F9F8F3]/20 cursor-pointer">
-                📄 Guardar / Imprimir Ficha PDF
-            </button>
-        </div>
+    </div>
 
-    </main>
+    <!-- Botón de Descarga fuera del contenedor principal para que no salga impreso en el PDF -->
+    <div class="max-w-md mx-auto w-full mt-4">
+        <button id="btn-descargar" onclick="descargarPDF()" class="w-full py-3 px-4 bg-[#A86542] hover:bg-[#8f5435] text-[#F9F8F3] text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border border-[#F9F8F3]/20 cursor-pointer">
+            📄 Guardar / Descargar Ficha PDF
+        </button>
+    </div>
 
     <!-- Footer -->
     <footer class="text-center mt-6 text-xs text-[#F9F8F3]/60">
@@ -428,9 +425,32 @@
 
         cambiarFoto(0);
 
-        // Solución nativa robusta: utiliza la función de impresión del sistema/navegador que genera un PDF perfecto en celulares y PCs sin fallar por librerías externas o bloqueos de CORS.
+        // Función robusta para generar y descargar el PDF en celulares y PCs
         function descargarPDF() {
-            window.print();
+            const elemento = document.getElementById('ficha-container');
+            const btnDescargar = document.getElementById('btn-descargar');
+            
+            // Cambiamos temporalmente el texto del botón para dar feedback al usuario
+            btnDescargar.innerText = "Generando PDF...";
+            btnDescargar.disabled = true;
+
+            const opciones = {
+                margin:       10,
+                filename:     `ficha-${plantaKey}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(elemento).set(opciones).save().then(() => {
+                btnDescargar.innerText = "📄 Guardar / Descargar Ficha PDF";
+                btnDescargar.disabled = false;
+            }).catch(err => {
+                console.error("Error al generar PDF:", err);
+                btnDescargar.innerText = "📄 Guardar / Descargar Ficha PDF";
+                btnDescargar.disabled = false;
+                alert("No se pudo generar el PDF automáticamente. Intentá nuevamente.");
+            });
         }
     </script>
 </body>
