@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Botánica Interactiva - Experiencia Misionera</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -38,20 +39,21 @@
         <div class="glow-card rounded-2xl p-3 shadow-2xl relative overflow-hidden">
             <div class="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-white/5 shadow-inner bg-[#132a1e]">
                 <!-- Se agregó loading="lazy" para optimizar la carga diferida -->
-<img id="foto-principal" src="" alt="Foto de la planta" loading="lazy" class="w-full h-full object-contain transition-opacity duration-300" onerror="this.src='https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=600&q=80'">                <div class="absolute top-3 right-3 bg-[#132a1e]/90 text-[#F9F8F3] text-[10px] px-2.5 py-1 rounded-full z-10 font-bold backdrop-blur-sm border border-white/20 uppercase tracking-widest shadow">
+                <img id="foto-principal" src="" alt="Foto de la planta" loading="lazy" class="w-full h-full object-contain transition-opacity duration-300" onerror="this.src='https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=600&q=80'">                <div class="absolute top-3 right-3 bg-[#132a1e]/90 text-[#F9F8F3] text-[10px] px-2.5 py-1 rounded-full z-10 font-bold backdrop-blur-sm border border-white/20 uppercase tracking-widest shadow">
                     Foto <span id="contador-foto">1</span> de 2
                 </div>
             </div>
 
             <!-- Botones con área táctil mejorada (py-3 para mayor comodidad en celulares) -->
-          <div class="flex gap-2 mt-3">
-    <button onclick="cambiarFoto(0)" id="btn-foto-0" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow">
-        Foto 1
-    </button>
-    <button onclick="cambiarFoto(1)" id="btn-foto-1" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#132a1e] text-[#F9F8F3]/70 border-[#2d5a43] hover:text-[#F9F8F3]">
-        Foto 2
-    </button>
-</div>
+            <div class="flex gap-2 mt-3">
+                <button onclick="cambiarFoto(0)" id="btn-foto-0" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow">
+                    Foto 1
+                </button>
+                <button onclick="cambiarFoto(1)" id="btn-foto-1" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#132a1e] text-[#F9F8F3]/70 border-[#2d5a43] hover:text-[#F9F8F3]">
+                    Foto 2
+                </button>
+            </div>
+        </div>
 
         <!-- Ficha de Poder -->
         <div class="glow-card rounded-2xl p-4 grid grid-cols-2 gap-3 text-sm">
@@ -85,6 +87,13 @@
                 <p class="text-xs text-[#F9F8F3]/70 mt-0.5">Escaneá para consultas, reservas o asesoramiento directo con el vivero.</p>
                 <span class="inline-block mt-2 text-[11px] text-[#A86542] font-semibold bg-[#132a1e] px-2 py-0.5 rounded border border-[#A86542]/40">📲 3751317709</span>
             </div>
+        </div>
+
+        <!-- Botón de Descarga PDF -->
+        <div>
+            <button onclick="descargarPDF()" class="w-full py-3 px-4 bg-[#A86542] hover:bg-[#8f5435] text-[#F9F8F3] text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border border-[#F9F8F3]/20 cursor-pointer">
+                📄 Descargar Ficha en PDF
+            </button>
         </div>
 
     </main>
@@ -419,9 +428,19 @@
         }
 
         cambiarFoto(0);
-    </script>
-</body>
-</html>
+
+        // Función para descargar la página o la ficha en PDF utilizando html2pdf.js
+        function descargarPDF() {
+            const elemento = document.body;
+            const opciones = {
+                margin:       10,
+                filename:     `ficha-${plantaKey}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(elemento).set(opciones).save();
+        }
     </script>
 </body>
 </html>
