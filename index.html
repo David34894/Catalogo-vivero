@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Botánica Interactiva - Experiencia Misionera</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Importamos html2pdf para asegurar la descarga directa en celulares y PCs -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         body { 
@@ -22,39 +20,38 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between p-4 sm:p-6">
 
-    <!-- Contenedor principal que se va a exportar a PDF -->
-    <div id="ficha-container" class="w-full max-w-md mx-auto space-y-4">
+    <!-- Header / Identidad del Vivero -->
+    <header class="text-center mb-5">
+        <div class="flex items-center justify-center gap-3 mb-2">
+            <img src="fotos/logo.png" alt="Logo Vivero" class="w-10 h-10 object-contain rounded-full bg-[#132a1e] p-1 border border-[#A86542]" onerror="this.style.display='none'">
+            <span class="text-base font-bold tracking-wider text-[#A86542] uppercase">Margarita-Samuhu</span>
+        </div>
+        <span class="text-[11px] uppercase tracking-widest text-[#F9F8F3] font-semibold bg-[#A86542] px-3 py-1 rounded-full shadow-sm">Botánica Interactiva Misionera</span>
+        <h1 id="nombre-comun" class="text-2xl sm:text-3xl font-bold mt-2 text-[#F9F8F3]">Cargando planta...</h1>
+        <p id="nombre-cientifico" class="italic text-sm text-[#F9F8F3]/80">científico</p>
+    </header>
 
-        <!-- Header / Identidad del Vivero -->
-        <header class="text-center mb-5">
-            <div class="flex items-center justify-center gap-3 mb-2">
-                <img src="fotos/logo.png" alt="Logo Vivero" class="w-10 h-10 object-contain rounded-full bg-[#132a1e] p-1 border border-[#A86542]" onerror="this.style.display='none'">
-                <span class="text-base font-bold tracking-wider text-[#A86542] uppercase">Margarita-Samuhu</span>
-            </div>
-            <span class="text-[11px] uppercase tracking-widest text-[#F9F8F3] font-semibold bg-[#A86542] px-3 py-1 rounded-full shadow-sm">Botánica Interactiva Misionera</span>
-            <h1 id="nombre-comun" class="text-2xl sm:text-3xl font-bold mt-2 text-[#F9F8F3]">Cargando planta...</h1>
-            <p id="nombre-cientifico" class="italic text-sm text-[#F9F8F3]/80">científico</p>
-        </header>
-
+    <!-- Contenido Principal -->
+    <main class="max-w-md mx-auto w-full space-y-4">
+        
         <!-- Galería de Fotos (Sistema de Pestañas) -->
         <div class="glow-card rounded-2xl p-3 shadow-2xl relative overflow-hidden">
             <div class="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-white/5 shadow-inner bg-[#132a1e]">
-                <img id="foto-principal" src="" alt="Foto de la planta" loading="lazy" class="w-full h-full object-contain transition-opacity duration-300" onerror="this.src='https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=600&q=80'">
-                <div class="absolute top-3 right-3 bg-[#132a1e]/90 text-[#F9F8F3] text-[10px] px-2.5 py-1 rounded-full z-10 font-bold backdrop-blur-sm border border-white/20 uppercase tracking-widest shadow">
+                <!-- Se agregó loading="lazy" para optimizar la carga diferida -->
+<img id="foto-principal" src="" alt="Foto de la planta" loading="lazy" class="w-full h-full object-contain transition-opacity duration-300" onerror="this.src='https://images.unsplash.com/photo-1463936575829-25148e1db1b8?auto=format&fit=crop&w=600&q=80'">                <div class="absolute top-3 right-3 bg-[#132a1e]/90 text-[#F9F8F3] text-[10px] px-2.5 py-1 rounded-full z-10 font-bold backdrop-blur-sm border border-white/20 uppercase tracking-widest shadow">
                     Foto <span id="contador-foto">1</span> de 2
                 </div>
             </div>
 
-            <!-- Botones con área táctil mejorada (Se ocultan al generar el PDF mediante la clase no-print) -->
-            <div class="flex gap-2 mt-3 no-print">
-                <button onclick="cambiarFoto(0)" id="btn-foto-0" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow">
-                    Foto 1
-                </button>
-                <button onclick="cambiarFoto(1)" id="btn-foto-1" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#132a1e] text-[#F9F8F3]/70 border-[#2d5a43] hover:text-[#F9F8F3]">
-                    Foto 2
-                </button>
-            </div>
-        </div>
+            <!-- Botones con área táctil mejorada (py-3 para mayor comodidad en celulares) -->
+          <div class="flex gap-2 mt-3">
+    <button onclick="cambiarFoto(0)" id="btn-foto-0" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#A86542] text-[#F9F8F3] border-[#A86542] shadow">
+        Foto 1
+    </button>
+    <button onclick="cambiarFoto(1)" id="btn-foto-1" class="flex-1 py-3 text-xs font-bold rounded-xl border transition-all bg-[#132a1e] text-[#F9F8F3]/70 border-[#2d5a43] hover:text-[#F9F8F3]">
+        Foto 2
+    </button>
+</div>
 
         <!-- Ficha de Poder -->
         <div class="glow-card rounded-2xl p-4 grid grid-cols-2 gap-3 text-sm">
@@ -90,18 +87,11 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- Botón de Descarga fuera del contenedor principal para que no salga impreso en el PDF -->
-    <div class="max-w-md mx-auto w-full mt-4">
-        <button id="btn-descargar" onclick="descargarPDF()" class="w-full py-3 px-4 bg-[#A86542] hover:bg-[#8f5435] text-[#F9F8F3] text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 border border-[#F9F8F3]/20 cursor-pointer">
-            📄 Guardar / Descargar Ficha PDF
-        </button>
-    </div>
+    </main>
 
     <!-- Footer -->
     <footer class="text-center mt-6 text-xs text-[#F9F8F3]/60">
-        <p>Soluciones 3DR • www.soluciones3dr.com</p>
+        <p>Soluciones 3DR • www.soluciones3dr.com Para contactos</p>
     </footer>
 
     <!-- Lógica y Base de Datos -->
@@ -385,16 +375,20 @@
             }
         };
 
+        // Función segura para normalizar texto (quita tildes, pasa a minúsculas y limpia espacios)
         function normalizarTexto(texto) {
             return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
         }
 
+        // Lectura del parámetro de URL 'p' con blindaje total ante mayúsculas y acentos
         const urlParams = new URLSearchParams(window.location.search);
         const rawPlantaKey = urlParams.get('p') || 'yabuticaba'; 
         const plantaKey = normalizarTexto(rawPlantaKey);
 
+        // Selección de datos (si no existe o está vacío, usa 'yabuticaba' por defecto)
         const datos = baseDatosPlantas[plantaKey] || baseDatosPlantas['yabuticaba'];
 
+        // Inyección de textos en la interfaz
         document.getElementById('nombre-comun').innerText = datos.comun;
         document.getElementById('nombre-cientifico').innerText = datos.cientifico;
         document.getElementById('dato-tamano').innerText = datos.tamano;
@@ -402,6 +396,7 @@
         document.getElementById('dato-atractivo').innerText = datos.atractivo;
         document.getElementById('dato-loco').innerText = datos.loco;
 
+        // Sistema de pestañas de fotos
         let fotoActualIndex = 0;
 
         function cambiarFoto(index) {
@@ -424,34 +419,9 @@
         }
 
         cambiarFoto(0);
-
-        // Función robusta para generar y descargar el PDF en celulares y PCs
-        function descargarPDF() {
-            const elemento = document.getElementById('ficha-container');
-            const btnDescargar = document.getElementById('btn-descargar');
-            
-            // Cambiamos temporalmente el texto del botón para dar feedback al usuario
-            btnDescargar.innerText = "Generando PDF...";
-            btnDescargar.disabled = true;
-
-            const opciones = {
-                margin:       10,
-                filename:     `ficha-${plantaKey}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().from(elemento).set(opciones).save().then(() => {
-                btnDescargar.innerText = "📄 Guardar / Descargar Ficha PDF";
-                btnDescargar.disabled = false;
-            }).catch(err => {
-                console.error("Error al generar PDF:", err);
-                btnDescargar.innerText = "📄 Guardar / Descargar Ficha PDF";
-                btnDescargar.disabled = false;
-                alert("No se pudo generar el PDF automáticamente. Intentá nuevamente.");
-            });
-        }
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
